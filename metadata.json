@@ -1,0 +1,5 @@
+{
+  "name": "Sonda ISA",
+  "description": "Ferramenta inteligente Sonda ISA para extração de dados do LinkedIn.",
+  "requestFramePermissions": []
+}

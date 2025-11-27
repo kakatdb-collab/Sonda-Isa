@@ -1,0 +1,249 @@
+import React, { useState, useCallback, useEffect } from 'react';
+import { Header } from './components/Header';
+import { InputArea } from './components/InputArea';
+import { DataGrid } from './components/DataGrid';
+import { Bookmarklet } from './components/Bookmarklet';
+import { extractProfilesFromText } from './services/geminiService';
+import { downloadCSV, downloadExcel } from './utils/csvHelper';
+import { downloadPDF } from './utils/pdfHelper';
+import { LinkedInProfile, ExtractionStatus, ExtractionBatch, SavedSheet } from './types';
+
+function App() {
+  const [inputText, setInputText] = useState('');
+  const [spreadsheetTitle, setSpreadsheetTitle] = useState('sonda-isa-export');
+  const [allProfiles, setAllProfiles] = useState<LinkedInProfile[]>([]);
+  const [batches, setBatches] = useState<ExtractionBatch[]>([]);
+  const [status, setStatus] = useState<ExtractionStatus>(ExtractionStatus.IDLE);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // History State
+  const [savedSheets, setSavedSheets] = useState<SavedSheet[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  // Load History from LocalStorage on Mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('li_extractor_history_v23');
+      if (stored) {
+        setSavedSheets(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error("Error loading history", e);
+    }
+  }, []);
+
+  // Save History to LocalStorage on Change
+  useEffect(() => {
+    localStorage.setItem('li_extractor_history_v23', JSON.stringify(savedSheets));
+  }, [savedSheets]);
+
+  const saveCurrentSheet = () => {
+    if (allProfiles.length === 0) return;
+    const newSheet: SavedSheet = {
+      id: Date.now().toString(),
+      title: spreadsheetTitle || 'Sem título',
+      date: new Date().toISOString(),
+      profiles: allProfiles,
+      batches: batches
+    };
+    setSavedSheets(prev => [newSheet, ...prev].slice(0, 30));
+  };
+
+  const handleNewSheet = () => {
+    if (allProfiles.length > 0) saveCurrentSheet();
+    setAllProfiles([]);
+    setBatches([]);
+    setSpreadsheetTitle('sonda-isa-export');
+    setInputText('');
+    setStatus(ExtractionStatus.IDLE);
+    setSuccessMessage(null);
+  };
+
+  const loadSheet = (sheet: SavedSheet) => {
+    if (allProfiles.length > 0 && !window.confirm("Carregar planilha antiga substituirá a atual. Continuar?")) return;
+    setAllProfiles(sheet.profiles);
+    setBatches(sheet.batches);
+    setSpreadsheetTitle(sheet.title);
+    setSuccessMessage(`Planilha carregada: ${sheet.title}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const deleteSheet = (id: string) => {
+    if (window.confirm("Excluir esta planilha do histórico?")) {
+      setSavedSheets(prev => prev.filter(s => s.id !== id));
+    }
+  };
+
+  // v23/30 Deduplication Logic (Smart)
+  const isDuplicate = (p1: LinkedInProfile, p2: LinkedInProfile) => {
+    // 1. URL Check
+    if (p1.profileUrl && p2.profileUrl && p1.profileUrl.length > 10 && p2.profileUrl.length > 10) {
+      if (p1.profileUrl === p2.profileUrl) return true;
+    }
+
+    // 2. Normalize
+    const norm = (s: string) => s ? s.toLowerCase().trim().replace(/[^a-z0-9]/g, '') : '';
+    const n1 = norm(p1.name);
+    const n2 = norm(p2.name);
+    const c1 = norm(p1.company);
+    const c2 = norm(p2.company);
+
+    if (!n1 || !n2) return false;
+
+    // 3. Name Match + Company Similarity
+    if (n1 === n2) {
+       if (c1 === c2) return true;
+       if (c1.length > 3 && c2.length > 3) {
+          if (c1.includes(c2) || c2.includes(c1)) return true;
+       }
+    }
+    return false;
+  };
+
+  const handleExtract = useCallback(async () => {
+    if (!inputText.trim()) return;
+    setStatus(ExtractionStatus.LOADING);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    try {
+      const rawData = await extractProfilesFromText(inputText);
+      
+      if (rawData.length === 0) {
+        setErrorMessage("Nenhum perfil encontrado.");
+        setStatus(ExtractionStatus.ERROR);
+      } else {
+        setAllProfiles(prevProfiles => {
+          let duplicatesCount = 0;
+          const uniqueNewData = rawData.filter(newProfile => {
+            const exists = prevProfiles.some(existingProfile => isDuplicate(existingProfile, newProfile));
+            if (exists) duplicatesCount++;
+            return !exists;
+          });
+
+          if (duplicatesCount > 0) {
+            setSuccessMessage(`${uniqueNewData.length} novos perfis adicionados. ${duplicatesCount} duplicatas removidas automaticamente.`);
+          } else {
+            setSuccessMessage(`${uniqueNewData.length} perfis adicionados com sucesso.`);
+          }
+
+          return [...prevProfiles, ...uniqueNewData];
+        });
+
+        setBatches(prev => [...prev, { id: Date.now().toString(), timestamp: new Date(), count: rawData.length }]);
+        setInputText('');
+        setStatus(ExtractionStatus.SUCCESS);
+      }
+    } catch (error) {
+      console.error(error);
+      setStatus(ExtractionStatus.ERROR);
+      setErrorMessage("Erro inesperado ao processar.");
+    }
+  }, [inputText]);
+
+  const handleDownloadCSV = useCallback(() => {
+    downloadCSV(allProfiles, spreadsheetTitle);
+  }, [allProfiles, spreadsheetTitle]);
+
+  const handleDownloadExcel = useCallback(() => {
+    downloadExcel(allProfiles, spreadsheetTitle);
+  }, [allProfiles, spreadsheetTitle]);
+
+  const handleDownloadPDF = useCallback(() => {
+    downloadPDF(allProfiles, spreadsheetTitle);
+  }, [allProfiles, spreadsheetTitle]);
+
+  // Pagination Logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentSheets = savedSheets.slice(indexOfFirstItem, indexOfLastItem);
+
+  return (
+    <div className="min-h-screen bg-[#f3f2ef] flex flex-col">
+      <Header />
+      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Sonda ISA (v31)</h1>
+          <button onClick={handleNewSheet} className="bg-white text-red-600 border border-red-200 px-4 py-2 rounded shadow-sm hover:bg-red-50 font-medium">
+             {allProfiles.length > 0 ? "💾 Salvar & Novo" : "✨ Nova Planilha"}
+          </button>
+        </div>
+
+        <Bookmarklet />
+        <InputArea value={inputText} onChange={setInputText} onExtract={handleExtract} status={status} />
+        
+        {errorMessage && <div className="bg-red-50 p-4 mb-6 text-red-700 border border-red-200 rounded">{errorMessage}</div>}
+        {successMessage && <div className="bg-green-50 p-4 mb-6 text-green-700 border border-green-200 rounded font-bold">{successMessage}</div>}
+        
+        {allProfiles.length > 0 && (
+          <DataGrid 
+            data={allProfiles} 
+            batches={batches} 
+            title={spreadsheetTitle} 
+            onTitleChange={setSpreadsheetTitle} 
+            onDownloadCSV={handleDownloadCSV}
+            onDownloadExcel={handleDownloadExcel}
+            onDownloadPDF={handleDownloadPDF}
+          />
+        )}
+
+        {/* History Section v30 */}
+        {savedSheets.length > 0 && (
+          <div className="mt-12 bg-white rounded-lg shadow overflow-hidden border border-gray-200 animate-fade-in-up">
+             <div className="bg-indigo-50 px-6 py-4 border-b border-indigo-100 flex justify-between items-center">
+                <h3 className="text-lg font-bold text-indigo-900 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                  </svg>
+                  Histórico de Planilhas Salvas
+                </h3>
+                <div className="flex items-center gap-4">
+                  <span className="text-xs text-indigo-500">{savedSheets.length} arquivos</span>
+                  <button onClick={() => { if(confirm('Limpar todo o histórico?')) setSavedSheets([]) }} className="text-xs text-red-500 hover:text-red-700 underline">Limpar Histórico</button>
+                </div>
+             </div>
+             <div className="overflow-x-auto">
+               <table className="min-w-full divide-y divide-gray-200">
+                 <thead className="bg-gray-50">
+                   <tr>
+                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Data</th>
+                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Título</th>
+                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Perfis</th>
+                     <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase">Ações</th>
+                   </tr>
+                 </thead>
+                 <tbody className="bg-white divide-y divide-gray-200">
+                   {currentSheets.map(sheet => (
+                     <tr key={sheet.id} className="hover:bg-indigo-50 transition-colors">
+                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(sheet.date).toLocaleString()}</td>
+                       <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{sheet.title}</td>
+                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold">{sheet.profiles.length}</span>
+                       </td>
+                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
+                         <button onClick={() => downloadExcel(sheet.profiles, sheet.title)} className="text-green-600 hover:text-green-800 px-2 py-1 border border-green-200 rounded text-xs" title="Baixar Excel Direto">
+                            Excel
+                         </button>
+                         <button onClick={() => loadSheet(sheet)} className="text-indigo-600 hover:text-indigo-900 px-3 py-1 border border-indigo-200 rounded hover:bg-indigo-100">Carregar</button>
+                         <button onClick={() => deleteSheet(sheet.id)} className="text-red-600 hover:text-red-900 px-3 py-1 border border-red-200 rounded hover:bg-red-50">Excluir</button>
+                       </td>
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+             </div>
+             <div className="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
+                <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="text-sm font-bold text-gray-600 disabled:opacity-30 hover:text-gray-900 px-3 py-1 border rounded">Anterior</button>
+                <span className="text-sm text-gray-600 font-medium">Página {currentPage} de {Math.max(1, Math.ceil(savedSheets.length / itemsPerPage))}</span>
+                <button disabled={indexOfLastItem >= savedSheets.length} onClick={() => setCurrentPage(p => p + 1)} className="text-sm font-bold text-gray-600 disabled:opacity-30 hover:text-gray-900 px-3 py-1 border rounded">Próxima</button>
+             </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
+
+export default App;
