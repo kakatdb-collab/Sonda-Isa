@@ -1,8 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { LinkedInProfile } from "../types";
 
-// REMOVED GLOBAL INIT to prevent "process is not defined" crash in browser
-// const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// NOTE: process.env removed completely to avoid Vercel build crashes
 
 const processSinglePage = async (pageText: string, pageIndex: number, apiKey: string): Promise<LinkedInProfile[]> => {
   if (!pageText || pageText.trim().length < 50) return [];
@@ -60,13 +59,13 @@ export const extractProfilesFromText = async (rawText: string, apiKey: string): 
   if (!apiKey) throw new Error("Chave de API não configurada.");
   if (!rawText || rawText.trim().length === 0) throw new Error("Texto vazio.");
 
-  let pages = rawText.split(/<<<< PAGE_SPLIT_V41_1 >>>>/);
+  // Update split logic for v41.2
+  let pages = rawText.split(/<<<< PAGE_SPLIT_V41_2 >>>>/);
   
-  // Fallbacks
+  // Fallbacks for older versions
+  if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V41_1 >>>>/);
   if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V41 >>>>/);
   if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V40 >>>>/);
-  if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V39 >>>>/);
-  if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V38 >>>>/);
   
   console.log(`Detectadas ${pages.length} páginas.`);
   // Pass apiKey down to the single page processor

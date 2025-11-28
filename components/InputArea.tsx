@@ -15,13 +15,13 @@ export const InputArea: React.FC<InputAreaProps> = ({ value, onChange, onExtract
   const [pageCount, setPageCount] = useState(0);
 
   useEffect(() => {
+    const v41_2 = (value.match(/<<<< PAGE_SPLIT_V41_2 >>>>/g) || []).length;
     const v41_1 = (value.match(/<<<< PAGE_SPLIT_V41_1 >>>>/g) || []).length;
     const v41 = (value.match(/<<<< PAGE_SPLIT_V41 >>>>/g) || []).length;
     const v40 = (value.match(/<<<< PAGE_SPLIT_V40 >>>>/g) || []).length;
-    const v39 = (value.match(/<<<< PAGE_SPLIT_V39 >>>>/g) || []).length;
     
     if (value.trim().length > 0) {
-        setPageCount(Math.max(v41_1, v41, v40, v39) + 1);
+        setPageCount(Math.max(v41_2, v41_1, v41, v40) + 1);
     } else {
         setPageCount(0);
     }
@@ -40,7 +40,7 @@ export const InputArea: React.FC<InputAreaProps> = ({ value, onChange, onExtract
         />
         {isBookmarkletData && pageCount > 1 && (
             <div className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded font-bold border border-blue-200">
-              📚 MODO LOTE DETECTADO: {pageCount} PÁGINAS (v41.1)
+              📚 MODO LOTE DETECTADO: {pageCount} PÁGINAS (v41.2)
             </div>
         )}
       </div>

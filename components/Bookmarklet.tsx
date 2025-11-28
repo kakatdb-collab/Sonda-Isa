@@ -7,16 +7,16 @@ export const Bookmarklet: React.FC = () => {
   const consoleScript = 
     "(function() { " +
     "  try { " +
-    "    console.log('⚡ Sonda Isa v41.1 Iniciado'); " +
+    "    console.log('⚡ Sonda Isa v41.2 Iniciado'); " +
     "    /* Limpeza de versões anteriores */ " +
-    "    var ids = ['li-extractor-v40', 'li-extractor-v41', 'li-extractor-v41_1']; " +
+    "    var ids = ['li-extractor-v40', 'li-extractor-v41', 'li-extractor-v41_1', 'li-extractor-v41_2']; " +
     "    for(var i=0; i<ids.length; i++) { var el = document.getElementById(ids[i]); if(el) el.remove(); } " +
     "    " +
-    "    /* Configurações v41.1 */ " +
-    "    var STORAGE_KEY = 'li_extractor_batch_v41_1'; " +
-    "    var TURBO_KEY = 'li_extractor_turbo_v41_1'; " +
-    "    var LAST_SIG_KEY = 'li_extractor_sig_v41_1'; " +
-    "    var SEPARATOR = '\\n\\n<<<< PAGE_SPLIT_V41_1 >>>>\\n\\n'; " +
+    "    /* Configurações v41.2 */ " +
+    "    var STORAGE_KEY = 'li_extractor_batch_v41_2'; " +
+    "    var TURBO_KEY = 'li_extractor_turbo_v41_2'; " +
+    "    var LAST_SIG_KEY = 'li_extractor_sig_v41_2'; " +
+    "    var SEPARATOR = '\\n\\n<<<< PAGE_SPLIT_V41_2 >>>>\\n\\n'; " +
     "    " +
     "    /* Funções Auxiliares */ " +
     "    function getStored() { return localStorage.getItem(STORAGE_KEY) || ''; } " +
@@ -48,7 +48,7 @@ export const Bookmarklet: React.FC = () => {
     "           if (currentTop >= maxScroll) { " +
     "               clearInterval(scrollInterval); " +
     "               container.scrollTop = container.scrollHeight; " +
-    "               setTimeout(onComplete, 3000); " +
+    "               setTimeout(onComplete, 3000); " + // Espera 3s após scroll " +
     "           } " +
     "       }, 100); " +
     "    } " +
@@ -113,10 +113,10 @@ export const Bookmarklet: React.FC = () => {
     "    " +
     "    function showModal(statusMsg) { " +
     "      var modal = document.createElement('div'); " +
-    "      modal.id = 'li-extractor-v41_1'; " +
+    "      modal.id = 'li-extractor-v41_2'; " +
     "      modal.style.cssText = 'position:fixed;top:20px;right:20px;width:380px;background:#fff;border:1px solid #000;z-index:2147483647;box-shadow:0 10px 40px rgba(0,0,0,0.4);border-radius:8px;font-family:sans-serif;color:#333;padding:0;overflow:hidden;animation:slideIn 0.3s;'; " +
     "      var stored = getStored(); " +
-    "      var pageCount = stored ? (stored.match(/<<<< PAGE_SPLIT_V41_1 >>>>/g) || []).length + 1 : (stored ? 1 : 0); " +
+    "      var pageCount = stored ? (stored.match(/<<<< PAGE_SPLIT_V41_2 >>>>/g) || []).length + 1 : (stored ? 1 : 0); " +
     "      var totalLeads = countTotalLeads(stored); " +
     "      if (!stored) { pageCount = 0; totalLeads = 0; } " +
     "      var isAuto = statusMsg !== null; " +
@@ -136,7 +136,7 @@ export const Bookmarklet: React.FC = () => {
     "         content += '<button id=\"btn-clear\" style=\"width:100%;padding:8px;background:none;color:#d11124;border:1px dashed #d11124;border-radius:4px;cursor:pointer;\">🗑️ Limpar Memória</button>'; " +
     "      } " +
     "      content += '</div>'; " +
-    "      modal.innerHTML = '<div style=\"background:'+headerColor+';color:white;padding:12px;font-weight:bold;display:flex;justify-content:space-between\"><span>⚡ Sonda Isa (v41.1)</span><button id=\"btn-close\" style=\"background:none;border:none;color:white;cursor:pointer\">×</button></div>' + content; " +
+    "      modal.innerHTML = '<div style=\"background:'+headerColor+';color:white;padding:12px;font-weight:bold;display:flex;justify-content:space-between\"><span>⚡ Sonda Isa (v41.2)</span><button id=\"btn-close\" style=\"background:none;border:none;color:white;cursor:pointer\">×</button></div>' + content; " +
     "      document.body.appendChild(modal); " +
     "      if(modal.querySelector('#btn-close')) modal.querySelector('#btn-close').onclick = function() { setTurbo('false'); modal.remove(); }; " +
     "      if (!isAuto) { " +
@@ -153,7 +153,7 @@ export const Bookmarklet: React.FC = () => {
     "    } " +
     "    " +
     "    function runExtraction(btn, isAutoMode) { " +
-    "         if(isAutoMode) { var m = document.getElementById('li-extractor-v41_1'); if(m) m.remove(); showModal('🔍 VERIFICANDO PÁGINA...'); } " +
+    "         if(isAutoMode) { var m = document.getElementById('li-extractor-v41_2'); if(m) m.remove(); showModal('🔍 VERIFICANDO PÁGINA...'); } " +
     "         /* Espera Inteligente: Verifica se a assinatura mudou antes de prosseguir */ " +
     "         var attempts = 0; " +
     "         var checkInterval = setInterval(function() { " +
@@ -162,21 +162,21 @@ export const Bookmarklet: React.FC = () => {
     "             /* Se não for auto ou se assinatura mudou ou se tentou por 20s (timeout) */ " +
     "             if (!isAutoMode || attempts > 20 || currentData.signature !== lastSig) { " +
     "                 clearInterval(checkInterval); " +
-    "                 if(isAutoMode) { var m = document.getElementById('li-extractor-v41_1'); if(m) m.remove(); showModal('🔄 ROLANDO PAGINA...'); } " +
+    "                 if(isAutoMode) { var m = document.getElementById('li-extractor-v41_2'); if(m) m.remove(); showModal('🔄 ROLANDO PAGINA...'); } " +
     "                 scrollToBottomSlowly(function() { " +
     "                     var freshData = getPageContent(); " +
     "                     var s = getStored(); " +
-    "                     if (s) s += SEPARATOR; else s = 'LINKEDIN_EXTRACTOR_BATCH_START_V41_1\\n\\n'; " +
+    "                     if (s) s += SEPARATOR; else s = 'LINKEDIN_EXTRACTOR_BATCH_START_V41_2\\n\\n'; " +
     "                     s += freshData.text; s += '\\n\\n(PAGE_SIGNATURE: ' + freshData.signature + ')'; " +
     "                     setStored(s); " +
     "                     setLastSig(freshData.signature); " +
     "                     if (isAutoMode) { " +
-    "                         var m = document.getElementById('li-extractor-v41_1'); if(m) m.remove(); " +
+    "                         var m = document.getElementById('li-extractor-v41_2'); if(m) m.remove(); " +
     "                         showModal('➡️ INDO PARA PRÓXIMA PÁGINA...'); " +
     "                         if(clickNextPage()) { setTimeout(function() { runExtraction(null, true); }, 3000); } " +
-    "                         else { setTurbo('false'); alert('🏁 FIM!'); var m = document.getElementById('li-extractor-v41_1'); if(m) m.remove(); showModal(null); } " +
+    "                         else { setTurbo('false'); alert('🏁 FIM!'); var m = document.getElementById('li-extractor-v41_2'); if(m) m.remove(); showModal(null); } " +
     "                     } else { " +
-    "                         var m = document.getElementById('li-extractor-v41_1'); if(m) m.remove(); showModal(null); " +
+    "                         var m = document.getElementById('li-extractor-v41_2'); if(m) m.remove(); showModal(null); " +
     "                     } " +
     "                 }); " +
     "             } else { " +
@@ -186,7 +186,7 @@ export const Bookmarklet: React.FC = () => {
     "         }, 1000); " +
     "    } " +
     "    if (isTurbo()) { runExtraction(null, true); } else { showModal(null); } " +
-    "  } catch(e) { alert('Erro v41.1: ' + e.message); } " +
+    "  } catch(e) { alert('Erro v41.2: ' + e.message); } " +
     "})();";
 
   const bookmarkletHref = `javascript:${encodeURIComponent(consoleScript)}`;
@@ -207,11 +207,11 @@ export const Bookmarklet: React.FC = () => {
     <div className="bg-white rounded-lg border-2 border-indigo-100 p-6 mb-8 shadow-sm">
       <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
         <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-sm border border-indigo-200">PASSO 1</span>
-        Captura de Dados (Sonda Isa v41.1)
+        Captura de Dados (Sonda Isa v41.2)
       </h3>
       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
         <p className="text-sm text-blue-800">
-          <strong>SMART AUTO-PILOTO (v41.1):</strong><br/>
+          <strong>SMART AUTO-PILOTO (v41.2):</strong><br/>
           Clique em <strong>"🚀 ATIVAR AUTO-PILOTO"</strong>. <br/>
           O script agora <strong>espera a página mudar</strong> de verdade antes de extrair (timeout 20s), garantindo que não pule páginas e salve todos os contatos.
         </p>
@@ -226,8 +226,8 @@ export const Bookmarklet: React.FC = () => {
         <div>
            <h4 className="font-bold text-gray-900 mb-2">Opção B: Botão de Favoritos</h4>
            <div className="p-6 bg-gray-100 rounded text-center border border-dashed border-gray-400 mt-4">
-              <a ref={linkRef} onClick={(e) => e.preventDefault()} className="inline-block px-6 py-3 bg-indigo-700 text-white text-sm font-bold rounded shadow-md hover:bg-indigo-800 cursor-grab active:cursor-grabbing" title="Sonda Isa v41.1">
-                Sonda Isa (v41.1)
+              <a ref={linkRef} onClick={(e) => e.preventDefault()} className="inline-block px-6 py-3 bg-indigo-700 text-white text-sm font-bold rounded shadow-md hover:bg-indigo-800 cursor-grab active:cursor-grabbing" title="Sonda Isa v41.2">
+                Sonda Isa (v41.2)
               </a>
            </div>
         </div>
