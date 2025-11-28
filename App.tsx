@@ -9,6 +9,10 @@ import { downloadPDF } from './utils/pdfHelper';
 import { LinkedInProfile, ExtractionStatus, ExtractionBatch, SavedSheet } from './types';
 
 function App() {
+  // API Key State Management
+  const [apiKey, setApiKey] = useState<string>('');
+  const [isConfiguring, setIsConfiguring] = useState<boolean>(true);
+
   const [inputText, setInputText] = useState('');
   const [spreadsheetTitle, setSpreadsheetTitle] = useState('sonda-isa-export');
   const [allProfiles, setAllProfiles] = useState<LinkedInProfile[]>([]);
@@ -22,7 +26,32 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Load History from LocalStorage on Mount (New Key v41)
+  // Load API Key on Mount
+  useEffect(() => {
+    const storedKey = localStorage.getItem('sonda_isa_gemini_key');
+    if (storedKey) {
+      setApiKey(storedKey);
+      setIsConfiguring(false);
+    }
+  }, []);
+
+  const handleSaveKey = (key: string) => {
+    if (key.trim().length > 10) {
+      localStorage.setItem('sonda_isa_gemini_key', key.trim());
+      setApiKey(key.trim());
+      setIsConfiguring(false);
+    } else {
+      alert("Chave inválida. Verifique e tente novamente.");
+    }
+  };
+
+  const handleResetKey = () => {
+    if (confirm("Deseja alterar a Chave de API?")) {
+      setIsConfiguring(true);
+    }
+  };
+
+  // Load History from LocalStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem('li_extractor_history_v41');
@@ -34,7 +63,7 @@ function App() {
     }
   }, []);
 
-  // Save History to LocalStorage on Change
+  // Save History
   useEffect(() => {
     localStorage.setItem('li_extractor_history_v41', JSON.stringify(savedSheets));
   }, [savedSheets]);
@@ -76,23 +105,17 @@ function App() {
     }
   };
 
-  // v38 Deduplication Logic (Smart)
+  // Deduplication Logic
   const isDuplicate = (p1: LinkedInProfile, p2: LinkedInProfile) => {
-    // 1. URL Check
     if (p1.profileUrl && p2.profileUrl && p1.profileUrl.length > 10 && p2.profileUrl.length > 10) {
       if (p1.profileUrl === p2.profileUrl) return true;
     }
-
-    // 2. Normalize
     const norm = (s: string) => s ? s.toLowerCase().trim().replace(/[^a-z0-9]/g, '') : '';
     const n1 = norm(p1.name);
     const n2 = norm(p2.name);
     const c1 = norm(p1.company);
     const c2 = norm(p2.company);
-
     if (!n1 || !n2) return false;
-
-    // 3. Name Match + Company Similarity
     if (n1 === n2) {
        if (c1 === c2) return true;
        if (c1.length > 3 && c2.length > 3) {
@@ -109,7 +132,8 @@ function App() {
     setSuccessMessage(null);
 
     try {
-      const rawData = await extractProfilesFromText(inputText);
+      // Pass the API Key dynamically here
+      const rawData = await extractProfilesFromText(inputText, apiKey);
       
       if (rawData.length === 0) {
         setErrorMessage("Nenhum perfil encontrado.");
@@ -136,12 +160,12 @@ function App() {
         setInputText('');
         setStatus(ExtractionStatus.SUCCESS);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       setStatus(ExtractionStatus.ERROR);
-      setErrorMessage("Erro inesperado ao processar.");
+      setErrorMessage("Erro: " + (error.message || "Erro inesperado ao processar."));
     }
-  }, [inputText]);
+  }, [inputText, apiKey]);
 
   const handleDownloadCSV = useCallback(() => {
     downloadCSV(allProfiles, spreadsheetTitle);
@@ -160,9 +184,47 @@ function App() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentSheets = savedSheets.slice(indexOfFirstItem, indexOfLastItem);
 
+  if (isConfiguring) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center border border-gray-200">
+          <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11.536 9.464l-2.828 2.829-1.415-1.415 6.364-6.364 1.414-1.414a6 6 0 018.486 8.486z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Bem-vindo ao Sonda ISA</h2>
+          <p className="text-gray-600 mb-6 text-sm">
+            Para usar esta ferramenta web, você precisa configurar sua <strong>Google Gemini API Key</strong>. 
+            A chave será salva apenas no seu navegador.
+          </p>
+          <div className="text-left mb-4">
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Sua API Key (Gemini)</label>
+            <input 
+              type="password" 
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              placeholder="Cole sua chave AIzaSy..."
+              onChange={(e) => setApiKey(e.target.value)}
+              value={apiKey}
+            />
+          </div>
+          <button 
+            onClick={() => handleSaveKey(apiKey)}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded transition-colors"
+          >
+            Salvar e Entrar
+          </button>
+          <p className="mt-4 text-xs text-gray-400">
+            Não tem uma chave? <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-blue-500 underline">Gere gratuitamente aqui</a>.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f3f2ef] flex flex-col">
-      <Header />
+      <Header onConfigure={handleResetKey} hasKey={true} />
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Sonda ISA (v41)</h1>
@@ -189,7 +251,6 @@ function App() {
           />
         )}
 
-        {/* History Section v38 */}
         {savedSheets.length > 0 && (
           <div className="mt-12 bg-white rounded-lg shadow overflow-hidden border border-gray-200 animate-fade-in-up">
              <div className="bg-indigo-50 px-6 py-4 border-b border-indigo-100 flex justify-between items-center">

@@ -1,14 +1,18 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { LinkedInProfile } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// REMOVED GLOBAL INIT to prevent "process is not defined" crash in browser
+// const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const processSinglePage = async (pageText: string, pageIndex: number): Promise<LinkedInProfile[]> => {
+const processSinglePage = async (pageText: string, pageIndex: number, apiKey: string): Promise<LinkedInProfile[]> => {
   if (!pageText || pageText.trim().length < 50) return [];
 
   const CHAR_LIMIT_PER_PAGE = 3000000; 
 
   try {
+    // Initialize AI instance dynamically with the user's key
+    const ai = new GoogleGenAI({ apiKey: apiKey });
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: `Você é um extrator de dados especialista. Analise o texto cru fornecido, que representa UMA PÁGINA de resultados do LinkedIn, e extraia TODOS os perfis.
@@ -52,7 +56,8 @@ const processSinglePage = async (pageText: string, pageIndex: number): Promise<L
   }
 };
 
-export const extractProfilesFromText = async (rawText: string): Promise<LinkedInProfile[]> => {
+export const extractProfilesFromText = async (rawText: string, apiKey: string): Promise<LinkedInProfile[]> => {
+  if (!apiKey) throw new Error("Chave de API não configurada.");
   if (!rawText || rawText.trim().length === 0) throw new Error("Texto vazio.");
 
   let pages = rawText.split(/<<<< PAGE_SPLIT_V41 >>>>/);
@@ -63,7 +68,8 @@ export const extractProfilesFromText = async (rawText: string): Promise<LinkedIn
   if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V38 >>>>/);
   
   console.log(`Detectadas ${pages.length} páginas.`);
-  const promises = pages.map((pageContent, index) => processSinglePage(pageContent, index));
+  // Pass apiKey down to the single page processor
+  const promises = pages.map((pageContent, index) => processSinglePage(pageContent, index, apiKey));
   
   try {
     const results = await Promise.all(promises);
