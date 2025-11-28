@@ -83,8 +83,9 @@ export const DataGrid: React.FC<DataGridProps> = ({ data, batches, title, onTitl
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cargo</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Empresa</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tempo no Cargo</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Localização</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Formação</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tempo</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -102,11 +103,14 @@ export const DataGrid: React.FC<DataGridProps> = ({ data, batches, title, onTitl
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{profile.company || '-'}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-bold text-linkedin-700 bg-blue-50 px-2 py-1 rounded inline-block">{profile.tenure || '-'}</div>
+                  <td className="px-6 py-4">
+                    <div className="text-xs text-gray-600 truncate max-w-[150px]" title={profile.education}>{profile.education || '-'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{profile.location}</div>
+                    <div className="text-xs text-gray-600 font-medium bg-gray-100 px-2 py-1 rounded inline-block">{profile.state || '-'}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-bold text-linkedin-700 bg-blue-50 px-2 py-1 rounded inline-block">{profile.tenure || '-'}</div>
                   </td>
                 </tr>
               ))}

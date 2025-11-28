@@ -1,21 +1,40 @@
 import { LinkedInProfile } from '../types';
 
+const cleanForExcel = (str: string | undefined): string => {
+  if (str === null || str === undefined) return '""';
+  // Convert to string, replace quotes with double quotes, remove line breaks
+  let content = String(str);
+  content = content.replace(/"/g, '""'); 
+  content = content.replace(/(\r\n|\n|\r)/gm, " "); 
+  return `"${content}"`;
+};
+
+const cleanForCSV = (str: string | undefined): string => {
+  if (str === null || str === undefined) return '""';
+  let content = String(str);
+  content = content.replace(/"/g, '""');
+  // CSV also doesn't like random newlines breaking records
+  content = content.replace(/(\r\n|\n|\r)/gm, " ");
+  return `"${content}"`;
+};
+
 export const downloadCSV = (data: LinkedInProfile[], filename: string) => {
   if (!data || data.length === 0) return;
 
-  const headers = ['Nome', 'Cargo', 'Empresa', 'Tempo no Cargo', 'Localização', 'URL do Perfil'];
+  const headers = ['Nome', 'Cargo', 'Empresa', 'Tempo no Cargo', 'Formação', 'Estado', 'Localização', 'URL do Perfil'];
   
   const csvContent = [
-    headers.join(','), 
+    headers.map(h => cleanForCSV(h)).join(','), 
     ...data.map(row => {
-      const escape = (str: string | undefined) => `"${(str || '').replace(/"/g, '""')}"`;
       return [
-        escape(row.name),
-        escape(row.role),
-        escape(row.company),
-        escape(row.tenure), // Novo campo
-        escape(row.location),
-        escape(row.profileUrl)
+        cleanForCSV(row.name),
+        cleanForCSV(row.role),
+        cleanForCSV(row.company),
+        cleanForCSV(row.tenure),
+        cleanForCSV(row.education), 
+        cleanForCSV(row.state),     
+        cleanForCSV(row.location),
+        cleanForCSV(row.profileUrl)
       ].join(',');
     })
   ].join('\n');
@@ -27,26 +46,22 @@ export const downloadCSV = (data: LinkedInProfile[], filename: string) => {
 export const downloadExcel = (data: LinkedInProfile[], filename: string) => {
   if (!data || data.length === 0) return;
 
-  // Excel no Brasil/Europa usa Ponto e Vírgula (;) como separador padrão e precisa do BOM (\uFEFF) para acentos
-  const headers = ['Nome', 'Cargo', 'Empresa', 'Tempo no Cargo', 'Localização', 'URL do Perfil'];
+  const headers = ['Nome', 'Cargo', 'Empresa', 'Tempo no Cargo', 'Formação', 'Estado', 'Localização', 'URL do Perfil'];
   const separator = ';';
   const BOM = '\uFEFF'; 
   
   const csvContent = BOM + [
-    headers.join(separator), 
+    headers.map(h => cleanForExcel(h)).join(separator), 
     ...data.map(row => {
-      // Remove quebras de linha que quebram o Excel e escapa aspas
-      const clean = (str: string | undefined) => {
-        if (!str) return '';
-        return `"${str.replace(/"/g, '""').replace(/(\r\n|\n|\r)/gm, " ")}"`;
-      };
       return [
-        clean(row.name),
-        clean(row.role),
-        clean(row.company),
-        clean(row.tenure), // Novo campo
-        clean(row.location),
-        clean(row.profileUrl)
+        cleanForExcel(row.name),
+        cleanForExcel(row.role),
+        cleanForExcel(row.company),
+        cleanForExcel(row.tenure),
+        cleanForExcel(row.education), 
+        cleanForExcel(row.state),     
+        cleanForExcel(row.location),
+        cleanForExcel(row.profileUrl)
       ].join(separator);
     })
   ].join('\n');

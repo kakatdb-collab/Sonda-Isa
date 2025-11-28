@@ -4,7 +4,9 @@ export interface LinkedInProfile {
   company: string;
   location: string;
   profileUrl?: string;
-  tenure?: string; // Novo campo: Tempo no Cargo
+  tenure?: string;
+  education?: string; // Novo: Formação/Instituição
+  state?: string;     // Novo: Estado de residência
 }
 
 export interface ExtractionBatch {

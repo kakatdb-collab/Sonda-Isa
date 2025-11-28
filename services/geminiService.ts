@@ -14,8 +14,10 @@ const processSinglePage = async (pageText: string, pageIndex: number): Promise<L
       contents: `Você é um extrator de dados especialista. Analise o texto cru fornecido, que representa UMA PÁGINA de resultados do LinkedIn, e extraia TODOS os perfis.
       
       IMPORTANTE:
-      1. Extraia o link do perfil no formato [LINK: ...]
-      2. Procure o tempo de permanência no cargo atual. Geralmente aparece como "1 ano 2 meses no cargo" ou "5 meses no cargo". Extraia apenas o tempo (ex: "1 ano 6 meses").
+      1. Extraia o link do perfil no formato [LINK: ...] (Se estiver no início do bloco).
+      2. Procure o tempo de permanência no cargo atual (ex: "1 ano 6 meses").
+      3. Extraia a Instituição de Ensino ou Formação. Priorize o texto marcado com [EDU: ...] ou [EDU_IMG: ...]. Caso contrário, procure por frases como "frequentou FIAP", "estudou em USP".
+      4. Extraia o Estado ou Região. Priorize o texto marcado com [LOC: ...]. Se não houver, infira o Estado baseado na cidade (Ex: "Curitiba" -> "Paraná", "Belo Horizonte" -> "Minas Gerais").
       
       Texto da Página ${pageIndex + 1}:
       ${pageText.slice(0, CHAR_LIMIT_PER_PAGE)}`,
@@ -31,7 +33,9 @@ const processSinglePage = async (pageText: string, pageIndex: number): Promise<L
               company: { type: Type.STRING },
               location: { type: Type.STRING },
               profileUrl: { type: Type.STRING },
-              tenure: { type: Type.STRING, description: "Tempo no cargo atual (ex: 1 ano, 6 meses, etc)" }
+              tenure: { type: Type.STRING, description: "Tempo no cargo atual" },
+              education: { type: Type.STRING, description: "Instituição de ensino ou curso principal" },
+              state: { type: Type.STRING, description: "Estado ou Região geográfica extraída da localização" }
             },
             required: ["name", "role"]
           }
@@ -51,20 +55,19 @@ const processSinglePage = async (pageText: string, pageIndex: number): Promise<L
 export const extractProfilesFromText = async (rawText: string): Promise<LinkedInProfile[]> => {
   if (!rawText || rawText.trim().length === 0) throw new Error("Texto vazio.");
 
-  let pages = rawText.split(/<<<< PAGE_SPLIT_V29_2 >>>>/);
+  let pages = rawText.split(/<<<< PAGE_SPLIT_V41 >>>>/);
   
-  // Fallbacks para versões antigas
-  if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V29_1 >>>>/);
-  if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V29 >>>>/);
-  if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V28 >>>>/);
-  if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V27 >>>>/);
+  // Fallbacks
+  if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V40 >>>>/);
+  if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V39 >>>>/);
+  if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V38 >>>>/);
   
   console.log(`Detectadas ${pages.length} páginas.`);
   const promises = pages.map((pageContent, index) => processSinglePage(pageContent, index));
   
   try {
     const results = await Promise.all(promises);
-    return results.flat(); // Deduplication happens in App.tsx now
+    return results.flat(); 
   } catch (error) {
     console.error("Erro extração:", error);
     throw error;

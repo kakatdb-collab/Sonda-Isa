@@ -19,33 +19,34 @@ export const downloadPDF = (data: LinkedInProfile[], title: string) => {
   doc.text(`Data: ${new Date().toLocaleDateString()}`, 14, 36);
 
   // Definição das Colunas e Linhas
-  const tableColumn = ["Nome", "Cargo", "Empresa", "Tempo Cargo", "Localização", "Perfil LinkedIn"];
-  const tableRows: string[][] = [];
+  const tableColumn = ["Nome", "Cargo", "Empresa", "Formação", "Estado", "Tempo", "URL"];
+  const tableRows: any[][] = []; // Changed to any to support link objects if needed, but didParseCell handles it
 
   data.forEach((profile) => {
     const rowData = [
       profile.name,
       profile.role,
       profile.company,
+      profile.education || "-", 
+      profile.state || "-",     
       profile.tenure || "-",
-      profile.location,
-      profile.profileUrl || "-"
+      profile.profileUrl || "" // Pass full URL here to be handled in didParseCell
     ];
     tableRows.push(rowData);
   });
 
-  // Geração da Tabela
+  // Geração da Tabela Interativa
   autoTable(doc, {
     head: [tableColumn],
     body: tableRows,
     startY: 45,
     styles: {
-      fontSize: 8,
-      cellPadding: 3,
+      fontSize: 7, 
+      cellPadding: 2,
       overflow: 'linebreak'
     },
     headStyles: {
-      fillColor: [0, 115, 177], // LinkedIn Blue Header
+      fillColor: [0, 115, 177],
       textColor: 255,
       fontStyle: 'bold'
     },
@@ -53,13 +54,26 @@ export const downloadPDF = (data: LinkedInProfile[], title: string) => {
       fillColor: [240, 247, 253]
     },
     columnStyles: {
-      0: { cellWidth: 40 }, // Nome
-      1: { cellWidth: 50 }, // Cargo
-      2: { cellWidth: 40 }, // Empresa
-      3: { cellWidth: 30 }, // Tempo
-      4: { cellWidth: 40 }, // Local
-      5: { cellWidth: 'auto' } // URL
+      0: { cellWidth: 35 }, // Nome
+      1: { cellWidth: 45 }, // Cargo
+      2: { cellWidth: 35 }, // Empresa
+      3: { cellWidth: 40 }, // Formação
+      4: { cellWidth: 25 }, // Estado
+      5: { cellWidth: 20 }, // Tempo
+      6: { cellWidth: 20, textColor: [0, 0, 255] } // URL Azul
     },
+    didParseCell: (data) => {
+        // Tornar a URL clicável
+        if (data.section === 'body' && data.column.index === 6) {
+             const url = data.cell.raw as string;
+             if (url && url.startsWith('http')) {
+                 data.cell.text = ['Abrir Perfil']; // Texto visível
+                 data.cell.link = url; // Link clicável
+             } else {
+                 data.cell.text = ['-'];
+             }
+        }
+    }
   });
 
   // Salvar Arquivo

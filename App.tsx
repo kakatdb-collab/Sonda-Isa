@@ -22,10 +22,10 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Load History from LocalStorage on Mount
+  // Load History from LocalStorage on Mount (New Key v41)
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('li_extractor_history_v23');
+      const stored = localStorage.getItem('li_extractor_history_v41');
       if (stored) {
         setSavedSheets(JSON.parse(stored));
       }
@@ -36,7 +36,7 @@ function App() {
 
   // Save History to LocalStorage on Change
   useEffect(() => {
-    localStorage.setItem('li_extractor_history_v23', JSON.stringify(savedSheets));
+    localStorage.setItem('li_extractor_history_v41', JSON.stringify(savedSheets));
   }, [savedSheets]);
 
   const saveCurrentSheet = () => {
@@ -76,7 +76,7 @@ function App() {
     }
   };
 
-  // v23/30 Deduplication Logic (Smart)
+  // v38 Deduplication Logic (Smart)
   const isDuplicate = (p1: LinkedInProfile, p2: LinkedInProfile) => {
     // 1. URL Check
     if (p1.profileUrl && p2.profileUrl && p1.profileUrl.length > 10 && p2.profileUrl.length > 10) {
@@ -165,7 +165,7 @@ function App() {
       <Header />
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Sonda ISA (v31)</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Sonda ISA (v41)</h1>
           <button onClick={handleNewSheet} className="bg-white text-red-600 border border-red-200 px-4 py-2 rounded shadow-sm hover:bg-red-50 font-medium">
              {allProfiles.length > 0 ? "💾 Salvar & Novo" : "✨ Nova Planilha"}
           </button>
@@ -183,13 +183,13 @@ function App() {
             batches={batches} 
             title={spreadsheetTitle} 
             onTitleChange={setSpreadsheetTitle} 
-            onDownloadCSV={handleDownloadCSV}
+            onDownloadCSV={handleDownloadCSV} 
             onDownloadExcel={handleDownloadExcel}
             onDownloadPDF={handleDownloadPDF}
           />
         )}
 
-        {/* History Section v30 */}
+        {/* History Section v38 */}
         {savedSheets.length > 0 && (
           <div className="mt-12 bg-white rounded-lg shadow overflow-hidden border border-gray-200 animate-fade-in-up">
              <div className="bg-indigo-50 px-6 py-4 border-b border-indigo-100 flex justify-between items-center">
