@@ -188,8 +188,8 @@ function App() {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
         <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center border border-gray-200">
-          <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="h-8 w-8 text-isa-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11.536 9.464l-2.828 2.829-1.415-1.415 6.364-6.364 1.414-1.414a6 6 0 018.486 8.486z" />
             </svg>
           </div>
@@ -202,7 +202,7 @@ function App() {
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Sua API Key (Gemini)</label>
             <input 
               type="password" 
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-isa-600 focus:outline-none"
               placeholder="Cole sua chave AIzaSy..."
               onChange={(e) => setApiKey(e.target.value)}
               value={apiKey}
@@ -210,12 +210,12 @@ function App() {
           </div>
           <button 
             onClick={() => handleSaveKey(apiKey)}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded transition-colors"
+            className="w-full bg-isa-600 hover:bg-isa-700 text-white font-bold py-3 rounded transition-colors"
           >
             Salvar e Entrar
           </button>
           <p className="mt-4 text-xs text-gray-400">
-            Não tem uma chave? <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-blue-500 underline">Gere gratuitamente aqui</a>.
+            Não tem uma chave? <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-isa-600 underline">Gere gratuitamente aqui</a>.
           </p>
         </div>
       </div>
@@ -228,7 +228,7 @@ function App() {
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Sonda ISA (v41.2)</h1>
-          <button onClick={handleNewSheet} className="bg-white text-red-600 border border-red-200 px-4 py-2 rounded shadow-sm hover:bg-red-50 font-medium">
+          <button onClick={handleNewSheet} className="bg-white text-isa-700 border border-isa-200 px-4 py-2 rounded shadow-sm hover:bg-isa-50 font-medium transition-colors">
              {allProfiles.length > 0 ? "💾 Salvar & Novo" : "✨ Nova Planilha"}
           </button>
         </div>
@@ -253,15 +253,15 @@ function App() {
 
         {savedSheets.length > 0 && (
           <div className="mt-12 bg-white rounded-lg shadow overflow-hidden border border-gray-200 animate-fade-in-up">
-             <div className="bg-indigo-50 px-6 py-4 border-b border-indigo-100 flex justify-between items-center">
-                <h3 className="text-lg font-bold text-indigo-900 flex items-center gap-2">
+             <div className="bg-isa-50 px-6 py-4 border-b border-isa-100 flex justify-between items-center">
+                <h3 className="text-lg font-bold text-isa-900 flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                   </svg>
                   Histórico de Planilhas Salvas
                 </h3>
                 <div className="flex items-center gap-4">
-                  <span className="text-xs text-indigo-500">{savedSheets.length} arquivos</span>
+                  <span className="text-xs text-isa-500">{savedSheets.length} arquivos</span>
                   <button onClick={() => { if(confirm('Limpar todo o histórico?')) setSavedSheets([]) }} className="text-xs text-red-500 hover:text-red-700 underline">Limpar Histórico</button>
                 </div>
              </div>
@@ -277,17 +277,17 @@ function App() {
                  </thead>
                  <tbody className="bg-white divide-y divide-gray-200">
                    {currentSheets.map(sheet => (
-                     <tr key={sheet.id} className="hover:bg-indigo-50 transition-colors">
+                     <tr key={sheet.id} className="hover:bg-isa-50 transition-colors">
                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(sheet.date).toLocaleString()}</td>
                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{sheet.title}</td>
                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold">{sheet.profiles.length}</span>
+                          <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-bold">{sheet.profiles.length}</span>
                        </td>
                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
                          <button onClick={() => downloadExcel(sheet.profiles, sheet.title)} className="text-green-600 hover:text-green-800 px-2 py-1 border border-green-200 rounded text-xs" title="Baixar Excel Direto">
                             Excel
                          </button>
-                         <button onClick={() => loadSheet(sheet)} className="text-indigo-600 hover:text-indigo-900 px-3 py-1 border border-indigo-200 rounded hover:bg-indigo-100">Carregar</button>
+                         <button onClick={() => loadSheet(sheet)} className="text-isa-600 hover:text-isa-900 px-3 py-1 border border-isa-200 rounded hover:bg-isa-100">Carregar</button>
                          <button onClick={() => deleteSheet(sheet.id)} className="text-red-600 hover:text-red-900 px-3 py-1 border border-red-200 rounded hover:bg-red-50">Excluir</button>
                        </td>
                      </tr>

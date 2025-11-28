@@ -120,7 +120,7 @@ export const Bookmarklet: React.FC = () => {
     "      var totalLeads = countTotalLeads(stored); " +
     "      if (!stored) { pageCount = 0; totalLeads = 0; } " +
     "      var isAuto = statusMsg !== null; " +
-    "      var headerColor = isAuto ? '#7e22ce' : '#0a66c2'; " +
+    "      var headerColor = isAuto ? '#7e22ce' : '#6d28d9'; " +
     "      var content = '<div style=\"padding:15px\">'; " +
     "      content += '<div style=\"background:#f1f5f9;padding:10px;border-radius:6px;text-align:center;margin-bottom:15px;border:1px solid #cbd5e1\">'; " +
     "      content += '<div style=\"font-size:11px;color:#475569;text-transform:uppercase;margin-bottom:4px\">Total Capturado</div>'; " +
@@ -204,13 +204,13 @@ export const Bookmarklet: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg border-2 border-indigo-100 p-6 mb-8 shadow-sm">
+    <div className="bg-white rounded-lg border-2 border-isa-100 p-6 mb-8 shadow-sm">
       <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-sm border border-indigo-200">PASSO 1</span>
+        <span className="bg-isa-100 text-isa-700 px-2 py-1 rounded text-sm border border-isa-200">PASSO 1</span>
         Captura de Dados (Sonda Isa v41.2)
       </h3>
-      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-        <p className="text-sm text-blue-800">
+      <div className="bg-purple-50 border-l-4 border-isa-600 p-4 mb-6">
+        <p className="text-sm text-purple-900">
           <strong>SMART AUTO-PILOTO (v41.2):</strong><br/>
           Clique em <strong>"🚀 ATIVAR AUTO-PILOTO"</strong>. <br/>
           O script agora <strong>espera a página mudar</strong> de verdade antes de extrair (timeout 20s), garantindo que não pule páginas e salve todos os contatos.
@@ -226,7 +226,7 @@ export const Bookmarklet: React.FC = () => {
         <div>
            <h4 className="font-bold text-gray-900 mb-2">Opção B: Botão de Favoritos</h4>
            <div className="p-6 bg-gray-100 rounded text-center border border-dashed border-gray-400 mt-4">
-              <a ref={linkRef} onClick={(e) => e.preventDefault()} className="inline-block px-6 py-3 bg-indigo-700 text-white text-sm font-bold rounded shadow-md hover:bg-indigo-800 cursor-grab active:cursor-grabbing" title="Sonda Isa v41.2">
+              <a ref={linkRef} onClick={(e) => e.preventDefault()} className="inline-block px-6 py-3 bg-isa-600 text-white text-sm font-bold rounded shadow-md hover:bg-isa-700 cursor-grab active:cursor-grabbing" title="Sonda Isa v41.2">
                 Sonda Isa (v41.2)
               </a>
            </div>

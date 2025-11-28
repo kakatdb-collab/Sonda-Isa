@@ -10,7 +10,7 @@ export const downloadPDF = (data: LinkedInProfile[], title: string) => {
 
   // Título do Documento
   doc.setFontSize(18);
-  doc.setTextColor(0, 115, 177); // LinkedIn Blue
+  doc.setTextColor(124, 58, 237); // ISA Purple (Violet 600)
   doc.text("Relatório Sonda ISA", 14, 22);
   
   doc.setFontSize(11);
@@ -20,7 +20,7 @@ export const downloadPDF = (data: LinkedInProfile[], title: string) => {
 
   // Definição das Colunas e Linhas
   const tableColumn = ["Nome", "Cargo", "Empresa", "Formação", "Estado", "Tempo", "URL"];
-  const tableRows: any[][] = []; // Changed to any to support link objects if needed, but didParseCell handles it
+  const tableRows: any[][] = []; 
 
   data.forEach((profile) => {
     const rowData = [
@@ -30,7 +30,7 @@ export const downloadPDF = (data: LinkedInProfile[], title: string) => {
       profile.education || "-", 
       profile.state || "-",     
       profile.tenure || "-",
-      profile.profileUrl || "" // Pass full URL here to be handled in didParseCell
+      profile.profileUrl || "" 
     ];
     tableRows.push(rowData);
   });
@@ -46,12 +46,12 @@ export const downloadPDF = (data: LinkedInProfile[], title: string) => {
       overflow: 'linebreak'
     },
     headStyles: {
-      fillColor: [0, 115, 177],
+      fillColor: [124, 58, 237], // ISA Purple
       textColor: 255,
       fontStyle: 'bold'
     },
     alternateRowStyles: {
-      fillColor: [240, 247, 253]
+      fillColor: [245, 243, 255] // Light Violet
     },
     columnStyles: {
       0: { cellWidth: 35 }, // Nome

@@ -32,14 +32,14 @@ export const InputArea: React.FC<InputAreaProps> = ({ value, onChange, onExtract
       <h2 className="text-lg font-semibold text-gray-800 mb-4">2. Área de Colagem e Extração</h2>
       <div className="relative">
         <textarea
-          className={`w-full h-48 p-3 border rounded-md font-mono text-sm ${isBookmarkletData ? 'border-green-500 bg-green-50' : 'border-gray-300'}`}
+          className={`w-full h-48 p-3 border rounded-md font-mono text-sm ${isBookmarkletData ? 'border-purple-300 bg-purple-50' : 'border-gray-300'}`}
           placeholder="Cole aqui os dados copiados..."
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={isLoading}
         />
         {isBookmarkletData && pageCount > 1 && (
-            <div className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded font-bold border border-blue-200">
+            <div className="absolute top-2 right-2 bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded font-bold border border-purple-200">
               📚 MODO LOTE DETECTADO: {pageCount} PÁGINAS (v41.2)
             </div>
         )}
@@ -48,7 +48,7 @@ export const InputArea: React.FC<InputAreaProps> = ({ value, onChange, onExtract
         <button
           onClick={onExtract}
           disabled={isLoading || !value}
-          className={`px-8 py-3 rounded-md text-white font-bold ${isLoading ? 'bg-gray-400' : 'bg-linkedin-600 hover:bg-linkedin-700'}`}
+          className={`px-8 py-3 rounded-md text-white font-bold transition-colors ${isLoading ? 'bg-gray-400' : 'bg-isa-600 hover:bg-isa-700'}`}
         >
           {isLoading ? 'Processando...' : 'Gerar Planilha'}
         </button>

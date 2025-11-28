@@ -27,7 +27,7 @@ export const DataGrid: React.FC<DataGridProps> = ({ data, batches, title, onTitl
             type="text" 
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-linkedin-600 focus:outline-none text-gray-800 font-medium"
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-isa-600 focus:outline-none text-gray-800 font-medium"
             placeholder="Ex: Leads Santander 2024"
           />
         </div>
@@ -72,8 +72,8 @@ export const DataGrid: React.FC<DataGridProps> = ({ data, batches, title, onTitl
 
       {/* Main Grid */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
-           <h3 className="text-sm font-bold text-gray-700">Visualização dos Dados</h3>
+        <div className="bg-purple-50 px-6 py-3 border-b border-purple-100">
+           <h3 className="text-sm font-bold text-purple-900">Visualização dos Dados</h3>
         </div>
         <div className="overflow-x-auto max-h-[500px]">
           <table className="min-w-full divide-y divide-gray-200">
@@ -90,7 +90,7 @@ export const DataGrid: React.FC<DataGridProps> = ({ data, batches, title, onTitl
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {data.map((profile, index) => (
-                <tr key={index} className="hover:bg-blue-50 transition-colors">
+                <tr key={index} className="hover:bg-purple-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-400">
                     {index + 1}
                   </td>
@@ -110,7 +110,7 @@ export const DataGrid: React.FC<DataGridProps> = ({ data, batches, title, onTitl
                     <div className="text-xs text-gray-600 font-medium bg-gray-100 px-2 py-1 rounded inline-block">{profile.state || '-'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-bold text-linkedin-700 bg-blue-50 px-2 py-1 rounded inline-block">{profile.tenure || '-'}</div>
+                    <div className="text-sm font-bold text-isa-700 bg-isa-50 px-2 py-1 rounded inline-block">{profile.tenure || '-'}</div>
                   </td>
                 </tr>
               ))}
@@ -124,7 +124,7 @@ export const DataGrid: React.FC<DataGridProps> = ({ data, batches, title, onTitl
         <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">Histórico da Sessão Atual</h4>
         <div className="flex flex-wrap gap-2">
            {batches.map((batch, idx) => (
-             <span key={batch.id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+             <span key={batch.id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                Importação #{idx + 1}: {batch.count} perfis ({batch.timestamp.toLocaleTimeString()})
              </span>
            ))}
