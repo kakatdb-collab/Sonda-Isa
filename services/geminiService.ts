@@ -60,9 +60,10 @@ export const extractProfilesFromText = async (rawText: string, apiKey: string): 
   if (!apiKey) throw new Error("Chave de API não configurada.");
   if (!rawText || rawText.trim().length === 0) throw new Error("Texto vazio.");
 
-  let pages = rawText.split(/<<<< PAGE_SPLIT_V41 >>>>/);
+  let pages = rawText.split(/<<<< PAGE_SPLIT_V41_1 >>>>/);
   
   // Fallbacks
+  if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V41 >>>>/);
   if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V40 >>>>/);
   if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V39 >>>>/);
   if (pages.length === 1) pages = rawText.split(/<<<< PAGE_SPLIT_V38 >>>>/);
